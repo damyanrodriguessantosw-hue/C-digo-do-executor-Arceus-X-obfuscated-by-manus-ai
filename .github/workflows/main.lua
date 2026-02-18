@@ -514,6 +514,42 @@ create_admin_cmd("Dar Admin", "Username", function(txt)
     if txt and txt ~= "" then table.insert(Admins, txt) end
 end)
 
+create_admin_cmd("R6 Convert", "Username (Deixe vazio p/ você)", function(txt)
+    local targetName = (txt and txt ~= "") and txt or LocalPlayer.Name
+    local player = Players:FindFirstChild(targetName)
+    
+    if player then
+        local function convertToR6(p)
+            local char = p.Character
+            if char and char:FindFirstChild("Humanoid") and char.Humanoid.RigType == Enum.HumanoidRigType.R15 then
+                local desc = Players:GetHumanoidDescriptionFromUserId(p.CharacterAppearanceId)
+                local newAvatar = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R6)
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    newAvatar:SetPrimaryPartCFrame(hrp.CFrame)
+                end
+                for _, j in pairs(char:GetChildren()) do
+                    if j.ClassName == "Tool" or (j:IsA("LuaSourceContainer") and j.Name ~= "Animate") then
+                        j.Parent = newAvatar
+                    end
+                end
+                newAvatar.Name = p.Name
+                p.Character = newAvatar
+                newAvatar.Parent = workspace
+            end
+        end
+        
+        -- Executa a conversão imediata
+        convertToR6(player)
+        
+        -- Configura para converter sempre que o personagem renascer
+        player.CharacterAdded:Connect(function()
+            task.wait(0.5) -- Pequeno delay para garantir que o personagem carregou
+            convertToR6(player)
+        end)
+    end
+end)
+
 -- Lógica de IA Real
 local function get_ai_response(query)
     local lower_query = query:lower()
