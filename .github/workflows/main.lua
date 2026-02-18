@@ -523,7 +523,7 @@ create_admin_cmd("R6 Convert", "Username (Deixe vazio p/ você)", function(txt)
             local char = p.Character
             if char and char:FindFirstChild("Humanoid") and char.Humanoid.RigType == Enum.HumanoidRigType.R15 then
                 local oldCFrame = char:GetPrimaryPartCFrame()
-                local appearance = p:GetHumanoidDescriptionFromUserId(p.CharacterAppearanceId)
+                local appearance = Players:GetHumanoidDescriptionFromUserId(p.CharacterAppearanceId)
                 
                 -- Cria o novo corpo R6 baseado na sua aparência original
                 local newChar = Players:CreateHumanoidModelFromDescription(appearance, Enum.HumanoidRigType.R6)
