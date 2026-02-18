@@ -518,50 +518,55 @@ create_admin_cmd("R6 Convert", "Username (Deixe vazio p/ você)", function(txt)
     local targetName = (txt and txt ~= "") and txt or LocalPlayer.Name
     local player = Players:FindFirstChild(targetName)
     
-    if player and player.Character then
+    if player then
         local function convertToR6(p)
             local char = p.Character
             if char and char:FindFirstChild("Humanoid") and char.Humanoid.RigType == Enum.HumanoidRigType.R15 then
                 local oldCFrame = char:GetPrimaryPartCFrame()
                 local appearance = Players:GetHumanoidDescriptionFromUserId(p.CharacterAppearanceId)
                 
-                -- Cria o novo corpo R6 baseado na sua aparência original
+                -- Cria o novo modelo R6 com a sua aparência exata
                 local newChar = Players:CreateHumanoidModelFromDescription(appearance, Enum.HumanoidRigType.R6)
                 newChar.Name = p.Name
                 
-                -- Transfere ferramentas e outros itens do personagem antigo
+                -- Transfere itens do personagem antigo (Tools, Scripts, etc)
                 for _, item in pairs(char:GetChildren()) do
                     if item:IsA("Tool") or (item:IsA("LuaSourceContainer") and item.Name ~= "Animate") then
                         item.Parent = newChar
                     end
                 end
                 
-                -- Garante o script de animação R6 padrão
+                -- INJEÇÃO DE ANIMAÇÃO R6 FUNCIONAL (FE)
                 local animate = game:GetObjects("rbxassetid://180435571")[1]
                 if animate then
                     animate.Name = "Animate"
                     animate.Parent = newChar
+                    -- Força o script de animação a rodar
+                    if animate:IsA("LocalScript") then
+                        animate.Disabled = false
+                    end
                 end
                 
-                -- Substitui o personagem mantendo a posição original
+                -- Substitui o personagem no Workspace
                 p.Character = newChar
                 newChar.Parent = workspace
                 newChar:SetPrimaryPartCFrame(oldCFrame)
                 
-                -- Remove o corpo antigo R15
+                -- Remove o R15 antigo
                 char:Destroy()
                 
-                -- Força o início das animações R6
-                task.wait(0.1)
+                -- Garante que o Humanoid inicie as animações
+                task.wait(0.2)
                 if newChar:FindFirstChild("Humanoid") then
                     newChar.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
                 end
             end
         end
         
+        -- Executa a conversão
         convertToR6(player)
         
-        -- Garante que o R6 seja aplicado em cada respawn
+        -- Reconecta em cada respawn para manter o R6
         player.CharacterAdded:Connect(function()
             task.wait(0.5)
             convertToR6(player)
