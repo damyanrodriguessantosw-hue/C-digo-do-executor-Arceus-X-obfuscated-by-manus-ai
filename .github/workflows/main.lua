@@ -536,16 +536,30 @@ create_admin_cmd("R6 Convert", "Username (Deixe vazio p/ você)", function(txt)
                     end
                 end
                 
-                -- INJEÇÃO DE ANIMAÇÃO R6 FUNCIONAL (FE)
-                local animate = game:GetObjects("rbxassetid://180435571")[1]
-                if animate then
-                    animate.Name = "Animate"
-                    animate.Parent = newChar
-                    -- Força o script de animação a rodar
-                    if animate:IsA("LocalScript") then
-                        animate.Disabled = false
-                    end
+                -- INJEÇÃO DE ANIMAÇÃO R6 MANUAL (MÉTODO DEFINITIVO)
+                local animate = Instance.new("LocalScript")
+                animate.Name = "Animate"
+                
+                local function addAnim(name, id)
+                    local anim = Instance.new("Animation")
+                    anim.Name = name
+                    anim.AnimationId = "rbxassetid://" .. id
+                    local val = Instance.new("StringValue")
+                    val.Name = name
+                    val.Parent = animate
+                    anim.Parent = val
                 end
+                
+                -- IDs de Animação R6 Padrão
+                addAnim("idle", "180435571")
+                addAnim("walk", "180426354")
+                addAnim("run", "180426354")
+                addAnim("jump", "125750702")
+                addAnim("fall", "180442463")
+                addAnim("climb", "180436334")
+                addAnim("sit", "178130996")
+                
+                animate.Parent = newChar
                 
                 -- Substitui o personagem no Workspace
                 p.Character = newChar
@@ -555,7 +569,7 @@ create_admin_cmd("R6 Convert", "Username (Deixe vazio p/ você)", function(txt)
                 -- Remove o R15 antigo
                 char:Destroy()
                 
-                -- Garante que o Humanoid inicie as animações
+                -- Força o Humanoid a carregar as animações
                 task.wait(0.2)
                 if newChar:FindFirstChild("Humanoid") then
                     newChar.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
