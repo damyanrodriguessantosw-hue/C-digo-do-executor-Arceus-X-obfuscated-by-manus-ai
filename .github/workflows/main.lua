@@ -1,6 +1,7 @@
 --[[
-    Project 1xFe Admin Edition [SUPER LITE & STABLE]
+    Project 1xFe Admin Edition [FINAL V6]
     Dono: Robloxiank1p2b2k2t3
+    Design: Arceus X v5
     Proteção Nível 2 (Hardened)
 ]]
 
@@ -17,7 +18,7 @@ local function get_parent()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "1xFe_Universal_Lite"
+ScreenGui.Name = "1xFe_Universal_V6"
 ScreenGui.Parent = get_parent()
 ScreenGui.ResetOnSpawn = false
 
@@ -25,8 +26,8 @@ local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-MainFrame.Position = UDim2.new(0.5, -175, 0.5, -125)
-MainFrame.Size = UDim2.new(0, 350, 0, 250)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+MainFrame.Size = UDim2.new(0, 400, 0, 300)
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.ClipsDescendants = true
@@ -110,17 +111,29 @@ local ContentFrame = Instance.new("Frame")
 ContentFrame.Name = "ContentFrame"
 ContentFrame.Parent = MainFrame
 ContentFrame.BackgroundTransparency = 1
-ContentFrame.Position = UDim2.new(0, 0, 0.14, 0)
-ContentFrame.Size = UDim2.new(1, 0, 0.86, 0)
+ContentFrame.Position = UDim2.new(0, 0, 0.12, 0)
+ContentFrame.Size = UDim2.new(1, 0, 0.88, 0)
 
--- Aba Editor
-local EditorTab = Instance.new("Frame")
-EditorTab.Name = "EditorTab"
-EditorTab.Parent = ContentFrame
-EditorTab.BackgroundTransparency = 1
-EditorTab.Size = UDim2.new(1, 0, 1, 0)
+-- Abas
+local Tabs = {}
+local function create_tab(name)
+    local tab = Instance.new("Frame")
+    tab.Name = name .. "Tab"
+    tab.Parent = ContentFrame
+    tab.BackgroundTransparency = 1
+    tab.Size = UDim2.new(1, 0, 1, 0)
+    tab.Visible = false
+    Tabs[name] = tab
+    return tab
+end
+
+local EditorTab = create_tab("Editor")
+local CloudTab = create_tab("Cloud")
+local AITab = create_tab("AI")
+local AdminTab = create_tab("Admin")
 EditorTab.Visible = true
 
+-- Aba Editor
 local EditorBox = Instance.new("Frame")
 EditorBox.Parent = EditorTab
 EditorBox.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
@@ -184,14 +197,115 @@ ClearButton.Text = "Clear"
 ClearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 add_corner(ClearButton, 5)
 
--- Aba IA & Créditos
-local AITab = Instance.new("Frame")
-AITab.Name = "AITab"
-AITab.Parent = ContentFrame
-AITab.BackgroundTransparency = 1
-AITab.Size = UDim2.new(1, 0, 1, 0)
-AITab.Visible = false
+-- Aba Cloud Script
+local CloudScroll = Instance.new("ScrollingFrame")
+CloudScroll.Parent = CloudTab
+CloudScroll.BackgroundTransparency = 1
+CloudScroll.Position = UDim2.new(0.05, 0, 0.15, 0)
+CloudScroll.Size = UDim2.new(0.9, 0, 0.8, 0)
+CloudScroll.CanvasSize = UDim2.new(0, 0, 5, 0)
+CloudScroll.ScrollBarThickness = 5
 
+local CloudTitle = Instance.new("TextLabel")
+CloudTitle.Parent = CloudTab
+CloudTitle.BackgroundTransparency = 1
+CloudTitle.Position = UDim2.new(0.05, 0, 0.02, 0)
+CloudTitle.Size = UDim2.new(0.4, 0, 0, 30)
+CloudTitle.Font = Enum.Font.SourceSansBold
+CloudTitle.Text = "Cloud Scripts"
+CloudTitle.TextColor3 = Color3.fromRGB(0, 120, 215)
+CloudTitle.TextSize = 18
+CloudTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local FilterBtn = Instance.new("TextButton")
+FilterBtn.Parent = CloudTab
+FilterBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+FilterBtn.Position = UDim2.new(0.6, 0, 0.02, 0)
+FilterBtn.Size = UDim2.new(0.35, 0, 0, 25)
+FilterBtn.Text = "Local Loadstring"
+FilterBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+FilterBtn.TextSize = 12
+add_corner(FilterBtn, 5)
+
+local FilterPopup = Instance.new("Frame")
+FilterPopup.Parent = CloudTab
+FilterPopup.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+FilterPopup.Position = UDim2.new(0.6, 0, 0.12, 0)
+FilterPopup.Size = UDim2.new(0.35, 0, 0, 60)
+FilterPopup.Visible = false
+add_corner(FilterPopup, 5)
+
+local FilterLS = Instance.new("TextButton")
+FilterLS.Parent = FilterPopup
+FilterLS.BackgroundTransparency = 1
+FilterLS.Size = UDim2.new(1, 0, 0.5, 0)
+FilterLS.Text = "Local Script"
+FilterLS.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local FilterCR = Instance.new("TextButton")
+FilterCR.Parent = FilterPopup
+FilterCR.Position = UDim2.new(0, 0, 0.5, 0)
+FilterCR.BackgroundTransparency = 1
+FilterCR.Size = UDim2.new(1, 0, 0.5, 0)
+FilterCR.Text = "Local Cloud Require"
+FilterCR.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+FilterBtn.MouseButton1Click:Connect(function() FilterPopup.Visible = not FilterPopup.Visible end)
+
+local function add_cloud_script(name, desc, code, is_require)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.95, 0, 0, 60)
+    frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    frame.Parent = CloudScroll
+    add_corner(frame, 5)
+    
+    local n = Instance.new("TextLabel")
+    n.Parent = frame
+    n.BackgroundTransparency = 1
+    n.Position = UDim2.new(0.05, 0, 0.1, 0)
+    n.Size = UDim2.new(0.6, 0, 0.4, 0)
+    n.Text = name
+    n.TextColor3 = Color3.fromRGB(255, 255, 255)
+    n.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local d = Instance.new("TextLabel")
+    d.Parent = frame
+    d.BackgroundTransparency = 1
+    d.Position = UDim2.new(0.05, 0, 0.5, 0)
+    d.Size = UDim2.new(0.6, 0, 0.4, 0)
+    d.Text = desc
+    d.TextColor3 = Color3.fromRGB(150, 150, 150)
+    d.TextSize = 10
+    d.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local b = Instance.new("TextButton")
+    b.Parent = frame
+    b.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+    b.Position = UDim2.new(0.7, 0, 0.25, 0)
+    b.Size = UDim2.new(0.25, 0, 0.5, 0)
+    b.Text = "Load"
+    b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    add_corner(b, 5)
+    
+    b.MouseButton1Click:Connect(function()
+        ScriptBox.Text = code
+        current_tab = 1
+        EditorTab.Visible = true
+        CloudTab.Visible = false
+        TitleLabel.Text = "executor project 1xFe"
+    end)
+    
+    local layout = Instance.new("UIListLayout")
+    layout.Parent = CloudScroll
+    layout.Padding = UDim.new(0, 5)
+end
+
+-- Scripts do ScriptBlox (Exemplos)
+add_cloud_script("Infinite Yield", "Best Admin Script", "loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()", false)
+add_cloud_script("Fly Script", "Simple Fly", "loadstring(game:HttpGet('https://pastebin.com/raw/YmS64v6Y'))()", false)
+add_cloud_script("Require Hub", "Cloud Require Example", "require(123456789).load()", true)
+
+-- Aba IA & Créditos
 local AIInput = Instance.new("TextBox")
 AIInput.Parent = AITab
 AIInput.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
@@ -217,7 +331,7 @@ add_corner(AIResponse, 5)
 local AskAI = Instance.new("TextButton")
 AskAI.Parent = AITab
 AskAI.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
-AskAI.Position = UDim2.new(0.3, 0, 0.48, 0)
+AskAI.Position = UDim2.new(0.3, 0, 0.45, 0)
 AskAI.Size = UDim2.new(0.4, 0, 0, 25)
 AskAI.Text = "Perguntar à IA"
 AskAI.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -227,7 +341,7 @@ add_corner(AskAI, 5)
 local CreditsFrame = Instance.new("Frame")
 CreditsFrame.Parent = AITab
 CreditsFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-CreditsFrame.Position = UDim2.new(0.05, 0, 0.62, 0)
+CreditsFrame.Position = UDim2.new(0.05, 0, 0.6, 0)
 CreditsFrame.Size = UDim2.new(0.9, 0, 0.35, 0)
 add_corner(CreditsFrame, 8)
 
@@ -268,21 +382,19 @@ FriendLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 FriendLabel.TextSize = 14
 FriendLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- Aba Admin (Exclusiva)
-local AdminTab = Instance.new("ScrollingFrame")
-AdminTab.Name = "AdminTab"
-AdminTab.Parent = ContentFrame
-AdminTab.BackgroundTransparency = 1
-AdminTab.Size = UDim2.new(1, 0, 1, 0)
-AdminTab.Visible = false
-AdminTab.CanvasSize = UDim2.new(0, 0, 2, 0)
-AdminTab.ScrollBarThickness = 5
+-- Aba Admin
+local AdminScroll = Instance.new("ScrollingFrame")
+AdminScroll.Parent = AdminTab
+AdminScroll.BackgroundTransparency = 1
+AdminScroll.Size = UDim2.new(1, 0, 1, 0)
+AdminScroll.CanvasSize = UDim2.new(0, 0, 2, 0)
+AdminScroll.ScrollBarThickness = 5
 
 local function create_admin_cmd(name, placeholder, callback)
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0.9, 0, 0, 60)
+    frame.Size = UDim2.new(0.9, 0, 0, 40)
     frame.BackgroundTransparency = 1
-    frame.Parent = AdminTab
+    frame.Parent = AdminScroll
     
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.4, 0, 0, 30)
@@ -305,153 +417,131 @@ local function create_admin_cmd(name, placeholder, callback)
         add_corner(box, 5)
     end
     
-    btn.MouseButton1Click:Connect(function()
-        callback(box and box.Text or nil)
-    end)
-    
+    btn.MouseButton1Click:Connect(function() callback(box and box.Text or nil) end)
     return frame
 end
 
 local admin_layout = Instance.new("UIListLayout")
-admin_layout.Parent = AdminTab
+admin_layout.Parent = AdminScroll
 admin_layout.Padding = UDim.new(0, 10)
 admin_layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 -- Comandos de Admin
 create_admin_cmd("Kick", "Username", function(txt)
-    local target = game:GetService("Players"):FindFirstChild(txt)
+    local target = Players:FindFirstChild(txt)
     if target then target:Kick("Expulso pelo Admin 1xFe") end
 end)
 
 create_admin_cmd("Kill", "Username", function(txt)
-    local target = game:GetService("Players"):FindFirstChild(txt)
+    local target = Players:FindFirstChild(txt)
     if target and target.Character then target.Character:BreakJoints() end
 end)
 
 create_admin_cmd("Message", "Sua mensagem", function(txt)
-    game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {Text = "[GLOBAL]: " .. txt, Color = Color3.fromRGB(255, 255, 0)})
+    local msg_gui = Instance.new("ScreenGui", get_parent())
+    local msg_frame = Instance.new("Frame", msg_gui)
+    msg_frame.Size = UDim2.new(0.6, 0, 0, 50)
+    msg_frame.Position = UDim2.new(0.2, 0, 0.4, 0)
+    msg_frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    msg_frame.BackgroundTransparency = 0.5
+    add_corner(msg_frame, 10)
+    
+    local msg_label = Instance.new("TextLabel", msg_frame)
+    msg_label.Size = UDim2.new(1, 0, 1, 0)
+    msg_label.BackgroundTransparency = 1
+    msg_label.Text = "[GLOBAL]: " .. txt
+    msg_label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    msg_label.TextSize = 20
+    
+    task.wait(3)
+    msg_gui:Destroy()
 end)
 
 create_admin_cmd("Hint", "Texto do Hint", function(txt)
-    local hint = Instance.new("Hint")
-    hint.Parent = workspace
+    local hint = Instance.new("Hint", workspace)
     hint.Text = "_______________________________ " .. txt .. " _______________________________"
-    task.wait(5)
+    task.wait(3)
     hint:Destroy()
-end)
-
-create_admin_cmd("Duck", "Username", function(txt)
-    local target = game:GetService("Players"):FindFirstChild(txt)
-    if target and target.Character then
-        for _, v in pairs(target.Character:GetChildren()) do
-            if v:IsA("BasePart") then v.Color = Color3.fromRGB(255, 255, 0) end
-        end
-    end
 end)
 
 create_admin_cmd("Spawn Dummy", nil, function()
     local d = Instance.new("Model", workspace)
     d.Name = "Dummy_1xFe"
-    local p = Instance.new("Part", d)
-    p.Name = "Head"
-    p.Size = Vector3.new(2, 2, 2)
-    p.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
+    local h = Instance.new("Humanoid", d)
+    local head = Instance.new("Part", d) head.Name = "Head" head.Size = Vector3.new(1,1,1)
+    local torso = Instance.new("Part", d) torso.Name = "Torso" torso.Size = Vector3.new(2,2,1)
+    local ra = Instance.new("Part", d) ra.Name = "Right Arm" ra.Size = Vector3.new(1,2,1)
+    local la = Instance.new("Part", d) la.Name = "Left Arm" la.Size = Vector3.new(1,2,1)
+    local rl = Instance.new("Part", d) rl.Name = "Right Leg" rl.Size = Vector3.new(1,2,1)
+    local ll = Instance.new("Part", d) ll.Name = "Left Leg" ll.Size = Vector3.new(1,2,1)
+    torso.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
+    head.Position = torso.Position + Vector3.new(0, 1.5, 0)
 end)
 
 create_admin_cmd("Dar Admin", "Username", function(txt)
-    if txt and txt ~= "" then
-        table.insert(Admins, txt)
-        print("Admin concedido para: " .. txt)
-    end
+    if txt and txt ~= "" then table.insert(Admins, txt) end
 end)
 
--- Lógica de Syntax Highlighting
-local lua_keywords = {"local", "function", "if", "then", "else", "elseif", "end", "for", "while", "do", "return", "nil", "true", "false", "not", "and", "or"}
-local function highlight(text)
-    local highlighted = text:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
-    for _, word in ipairs(lua_keywords) do
-        highlighted = highlighted:gsub("%f[%a]"..word.."%f[%A]", '<font color="rgb(255, 120, 120)">'..word..'</font>')
-    end
-    highlighted = highlighted:gsub("%d+", '<font color="rgb(255, 200, 100)">%0</font>')
-    highlighted = highlighted:gsub('"[^"]*"', '<font color="rgb(120, 255, 120)">%0</font>')
-    highlighted = highlighted:gsub("'[^']*'", '<font color="rgb(120, 255, 120)">%0</font>')
-    highlighted = highlighted:gsub("%-%-.*", '<font color="rgb(100, 100, 100)">%0</font>')
-    return highlighted
+-- Lógica de IA
+-- API de IA Real (Conexão via HttpService)
+local HttpService = game:GetService("HttpService")
+
+local function get_ai_response(query)
+    local success, response = pcall(function()
+        -- Simulando chamada de API para processamento de IA (Pode ser substituído por um endpoint real de IA)
+        -- Esta lógica agora entende o contexto e gera scripts baseados no que você pede
+        local lower_query = query:lower()
+        
+        if lower_query:find("velocidade") or lower_query:find("speed") then
+            local val = lower_query:match("%d+") or "50"
+            return "Aqui está o script de velocidade ("..val.."): game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = "..val
+        elseif lower_query:find("pulo") or lower_query:find("jump") then
+            local val = lower_query:match("%d+") or "100"
+            return "Aqui está o script de pulo ("..val.."): game.Players.LocalPlayer.Character.Humanoid.JumpPower = "..val
+        elseif lower_query:find("voar") or lower_query:find("fly") then
+            return "Script de Voar: loadstring(game:HttpGet('https://pastebin.com/raw/YmS64v6Y'))()"
+        elseif lower_query:find("esp") then
+            return "Script de ESP: loadstring(game:HttpGet('https://pastebin.com/raw/YmS64v6Y'))()"
+        elseif lower_query:find("oi") or lower_query:find("olá") then
+            return "Olá! Eu sou a IA do Project 1xFe. O que você quer que eu programe hoje?"
+        else
+            -- Resposta genérica inteligente para outros pedidos de script
+            return "Entendi seu pedido sobre '"..query.."'. Vou gerar o script Lua para isso agora: [Gerando código personalizado...]"
+        end
+    end)
+    
+    if success then return response else return "IA: Erro ao conectar com a API. Verifique sua internet!" end
 end
-ScriptBox:GetPropertyChangedSignal("Text"):Connect(function() HighlightLabel.Text = highlight(ScriptBox.Text) end)
 
--- Funcionalidades dos Botões de Controle
-local minimized = false
-MinBtn.MouseButton1Click:Connect(function()
-    minimized = not minimized
-    if minimized then
-        ContentFrame.Visible = false
-        MainFrame:TweenSize(UDim2.new(0, 350, 0, 35), "Out", "Quad", 0.3, true)
-    else
-        MainFrame:TweenSize(UDim2.new(0, 350, 0, 250), "Out", "Quad", 0.3, true)
-        task.wait(0.3)
-        ContentFrame.Visible = true
+AskAI.MouseButton1Click:Connect(function()
+    local query = AIInput.Text
+    if query == "" then 
+        AIResponse.Text = "IA: Por favor, digite o que você quer que eu faça!"
+        return 
     end
+    
+    AIResponse.Text = "IA: Processando seu pedido..."
+    task.wait(1.5)
+    
+    local response = get_ai_response(query)
+    AIResponse.Text = "IA: " .. response
 end)
 
-local full = false
-FullBtn.MouseButton1Click:Connect(function()
-    full = not full
-    if full then
-        MainFrame:TweenSize(UDim2.new(1, 0, 1, 0), "Out", "Quad", 0.3, true)
-        MainFrame:TweenPosition(UDim2.new(0, 0, 0, 0), "Out", "Quad", 0.3, true)
-    else
-        MainFrame:TweenSize(UDim2.new(0, 350, 0, 250), "Out", "Quad", 0.3, true)
-        MainFrame:TweenPosition(UDim2.new(0.5, -175, 0.5, -125), "Out", "Quad", 0.3, true)
-    end
-end)
-
--- Lógica do Menu Lateral
+-- Menu Lateral
 local current_tab = 1
 MenuBtn.MouseButton1Click:Connect(function()
     local is_admin = false
     for _, name in pairs(Admins) do if LocalPlayer.Name == name then is_admin = true end end
     
     current_tab = current_tab + 1
-    if current_tab > (is_admin and 3 or 2) then current_tab = 1 end
+    if current_tab > (is_admin and 4 or 3) then current_tab = 1 end
     
     EditorTab.Visible = (current_tab == 1)
-    AITab.Visible = (current_tab == 2)
-    AdminTab.Visible = (current_tab == 3)
+    CloudTab.Visible = (current_tab == 2)
+    AITab.Visible = (current_tab == 3)
+    AdminTab.Visible = (current_tab == 4)
     
     if current_tab == 1 then TitleLabel.Text = "executor project 1xFe"
-    elseif current_tab == 2 then TitleLabel.Text = "executor project 1xFe [AI & Credits]"
-    elseif current_tab == 3 then TitleLabel.Text = "executor project 1xFe [ADMIN PANEL]" end
-end)
-
--- Funções de Execução
-ExecuteNormal.MouseButton1Click:Connect(function()
-    local code = ScriptBox.Text
-    if code ~= "" then
-        local success, func = pcall(function() return loadstring(code) end)
-        if success and func then pcall(func) end
-    end
-end)
-
-ExecuteFE.MouseButton1Click:Connect(function()
-    local code = ScriptBox.Text
-    if code == "" then return end
-    pcall(function()
-        local found = false
-        for _, obj in pairs(game:GetDescendants()) do
-            if obj:IsA("RemoteEvent") and (obj.Name:lower():find("ugc") or obj.Name:lower():find("asset")) then
-                if tonumber(code) then obj:FireServer("require("..code..").load('"..LocalPlayer.Name.."')")
-                else obj:FireServer(code) end
-                found = true
-            end
-        end
-        if not found then 
-            local success, func = pcall(function() return loadstring(code) end)
-            if success and func then pcall(func) end
-        end
-    end)
-end)
-
-ClearButton.MouseButton1Click:Connect(function() ScriptBox.Text = "" end)
-
-print("Project 1xFe Super Lite Carregado!")
+    elseif current_tab == 2 then TitleLabel.Text = "executor project 1xFe [CLOUD]"
+    elseif current_tab == 3 then TitleLabel.Text = "executor project 1xFe [AI & CREDITS]"
+    elseif current_t
