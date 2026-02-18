@@ -450,9 +450,21 @@ end)
 
 create_admin_cmd("Kill", "Username", function(txt)
     local target = Players:FindFirstChild(txt)
-    if target and target.Character then
-        target.Character:BreakJoints()
-        if target.Character:FindFirstChild("Humanoid") then target.Character.Humanoid.Health = 0 end
+    if target and target.Character and LocalPlayer.Character then
+        local myHRP = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        local targetHRP = target.Character:FindFirstChild("HumanoidRootPart")
+        if myHRP and targetHRP then
+            local oldPos = myHRP.CFrame
+            -- Teleporta para o alvo para tentar o Kill via contato físico (FE Kill Bypass)
+            myHRP.CFrame = targetHRP.CFrame
+            task.wait(0.1)
+            if target.Character:FindFirstChild("Humanoid") then
+                target.Character.Humanoid.Health = 0
+            end
+            target.Character:BreakJoints()
+            task.wait(0.1)
+            myHRP.CFrame = oldPos
+        end
     end
 end)
 
@@ -463,11 +475,27 @@ create_admin_cmd("Fling", "Username", function(txt)
         local thrp = target.Character:FindFirstChild("HumanoidRootPart")
         if hrp and thrp then
             local old_pos = hrp.CFrame
-            hrp.CFrame = thrp.CFrame + Vector3.new(0, 1, 0)
-            local bv = Instance.new("BodyVelocity", hrp)
-            bv.Velocity = Vector3.new(0, 1000, 0)
-            task.wait(0.1)
-            bv:Destroy()
+            local bV = Instance.new("BodyVelocity")
+            bV.Velocity = Vector3.new(5000, 5000, 5000)
+            bV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+            bV.P = 1250
+            bV.Parent = hrp
+            
+            local bA = Instance.new("BodyAngularVelocity")
+            bA.AngularVelocity = Vector3.new(5000, 5000, 5000)
+            bA.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+            bA.P = 1250
+            bA.Parent = hrp
+            
+            -- Ataca o alvo por 1 segundo
+            local startTime = tick()
+            while tick() - startTime < 1 do
+                hrp.CFrame = thrp.CFrame
+                task.wait()
+            end
+            
+            bV:Destroy()
+            bA:Destroy()
             hrp.CFrame = old_pos
         end
     end
@@ -536,30 +564,15 @@ create_admin_cmd("R6 Convert", "Username (Deixe vazio p/ você)", function(txt)
                     end
                 end
                 
-                -- INJEÇÃO DE ANIMAÇÃO R6 MANUAL (MÉTODO DEFINITIVO)
-                local animate = Instance.new("LocalScript")
-                animate.Name = "Animate"
-                
-                local function addAnim(name, id)
-                    local anim = Instance.new("Animation")
-                    anim.Name = name
-                    anim.AnimationId = "rbxassetid://" .. id
-                    local val = Instance.new("StringValue")
-                    val.Name = name
-                    val.Parent = animate
-                    anim.Parent = val
+                -- INJEÇÃO DE ANIMAÇÃO R6 (FORÇA O SCRIPT PADRÃO)
+                local animate = game:GetObjects("rbxassetid://180435571")[1]
+                if animate then
+                    animate.Name = "Animate"
+                    animate.Parent = newChar
+                    if animate:IsA("LocalScript") then
+                        animate.Disabled = false
+                    end
                 end
-                
-                -- IDs de Animação R6 Padrão
-                addAnim("idle", "180435571")
-                addAnim("walk", "180426354")
-                addAnim("run", "180426354")
-                addAnim("jump", "125750702")
-                addAnim("fall", "180442463")
-                addAnim("climb", "180436334")
-                addAnim("sit", "178130996")
-                
-                animate.Parent = newChar
                 
                 -- Substitui o personagem no Workspace
                 p.Character = newChar
@@ -569,7 +582,7 @@ create_admin_cmd("R6 Convert", "Username (Deixe vazio p/ você)", function(txt)
                 -- Remove o R15 antigo
                 char:Destroy()
                 
-                -- Força o Humanoid a carregar as animações
+                -- Força o Humanoid a carregar as animações e o RigType
                 task.wait(0.2)
                 if newChar:FindFirstChild("Humanoid") then
                     newChar.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
