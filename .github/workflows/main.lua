@@ -1,8 +1,8 @@
 --[[
-    Project 1xFe Admin Edition [FINAL STABLE]
+    Project 1xFe Admin Edition [PURE SOURCE EDITION]
     Dono: Robloxiank1p2b2k2t3
     Design: Arceus X v5
-    Proteção: Nível 2 (Clean & Direct)
+    Proteção: Nível 2 (Pure Source)
 ]]
 
 local Players = game:GetService("Players")
@@ -293,16 +293,16 @@ local function add_cloud_script(name, desc, code, is_require)
         Tabs["Cloud"].Visible = false
         TitleLabel.Text = "executor project 1xFe"
     end)
-    
-    local layout = Instance.new("UIListLayout")
-    layout.Parent = CloudScroll
-    layout.Padding = UDim.new(0, 5)
 end
 
 -- Scripts do ScriptBlox (Exemplos)
 add_cloud_script("Infinite Yield", "Best Admin Script", "loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()", false)
 add_cloud_script("Fly Script", "Simple Fly", "loadstring(game:HttpGet('https://pastebin.com/raw/YmS64v6Y'))()", false)
 add_cloud_script("Require Hub", "Cloud Require Example", "require(123456789).load()", true)
+
+local cloud_layout = Instance.new("UIListLayout")
+cloud_layout.Parent = CloudScroll
+cloud_layout.Padding = UDim.new(0, 5)
 
 -- Aba IA & Créditos
 local AIInput = Instance.new("TextBox")
@@ -549,5 +549,4 @@ end)
 
 ClearButton.MouseButton1Click:Connect(function() ScriptBox.Text = "" end)
 
-print("Project 1xFe Final Stable Carregado!")
-
+print("Project 1xFe Pure Source Carregado!")
