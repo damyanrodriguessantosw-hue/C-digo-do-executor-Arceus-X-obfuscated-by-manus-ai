@@ -1,5 +1,5 @@
 --[[
-    Project 1xFe Admin Edition [PURE SOURCE EDITION]
+    Project 1xFe Admin Edition [FINAL V7]
     Dono: Robloxiank1p2b2k2t3
     Design: Arceus X v5
     Proteção: Nível 2 (Pure Source)
@@ -18,7 +18,7 @@ local function get_parent()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "1xFe_Universal_V6"
+ScreenGui.Name = "1xFe_Universal_V7"
 ScreenGui.Parent = get_parent()
 ScreenGui.ResetOnSpawn = false
 
@@ -257,6 +257,7 @@ local function add_cloud_script(name, desc, code, is_require)
     frame.Size = UDim2.new(0.95, 0, 0, 60)
     frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     frame.Parent = CloudScroll
+    frame.Name = is_require and "Require" or "Script"
     add_corner(frame, 5)
     
     local n = Instance.new("TextLabel")
@@ -303,6 +304,22 @@ add_cloud_script("Require Hub", "Cloud Require Example", "require(123456789).loa
 local cloud_layout = Instance.new("UIListLayout")
 cloud_layout.Parent = CloudScroll
 cloud_layout.Padding = UDim.new(0, 5)
+
+FilterLS.MouseButton1Click:Connect(function()
+    FilterBtn.Text = "Local Script"
+    FilterPopup.Visible = false
+    for _, v in pairs(CloudScroll:GetChildren()) do
+        if v:IsA("Frame") then v.Visible = (v.Name == "Script") end
+    end
+end)
+
+FilterCR.MouseButton1Click:Connect(function()
+    FilterBtn.Text = "Local Cloud Require"
+    FilterPopup.Visible = false
+    for _, v in pairs(CloudScroll:GetChildren()) do
+        if v:IsA("Frame") then v.Visible = (v.Name == "Require") end
+    end
+end)
 
 -- Aba IA & Créditos
 local AIInput = Instance.new("TextBox")
@@ -433,7 +450,27 @@ end)
 
 create_admin_cmd("Kill", "Username", function(txt)
     local target = Players:FindFirstChild(txt)
-    if target and target.Character then target.Character:BreakJoints() end
+    if target and target.Character then
+        target.Character:BreakJoints()
+        if target.Character:FindFirstChild("Humanoid") then target.Character.Humanoid.Health = 0 end
+    end
+end)
+
+create_admin_cmd("Fling", "Username", function(txt)
+    local target = Players:FindFirstChild(txt)
+    if target and target.Character and LocalPlayer.Character then
+        local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        local thrp = target.Character:FindFirstChild("HumanoidRootPart")
+        if hrp and thrp then
+            local old_pos = hrp.CFrame
+            hrp.CFrame = thrp.CFrame + Vector3.new(0, 1, 0)
+            local bv = Instance.new("BodyVelocity", hrp)
+            bv.Velocity = Vector3.new(0, 1000, 0)
+            task.wait(0.1)
+            bv:Destroy()
+            hrp.CFrame = old_pos
+        end
+    end
 end)
 
 create_admin_cmd("Message", "Sua mensagem", function(txt)
@@ -464,17 +501,13 @@ create_admin_cmd("Hint", "Texto do Hint", function(txt)
 end)
 
 create_admin_cmd("Spawn Dummy", nil, function()
-    local d = Instance.new("Model", workspace)
+    local d = game:GetObjects("rbxassetid://56450236")[1] -- Carrega um Dummy R6 Real
+    d.Parent = workspace
     d.Name = "Dummy_1xFe"
-    local h = Instance.new("Humanoid", d)
-    local head = Instance.new("Part", d) head.Name = "Head" head.Size = Vector3.new(1,1,1)
-    local torso = Instance.new("Part", d) torso.Name = "Torso" torso.Size = Vector3.new(2,2,1)
-    local ra = Instance.new("Part", d) ra.Name = "Right Arm" ra.Size = Vector3.new(1,2,1)
-    local la = Instance.new("Part", d) la.Name = "Left Arm" la.Size = Vector3.new(1,2,1)
-    local rl = Instance.new("Part", d) rl.Name = "Right Leg" rl.Size = Vector3.new(1,2,1)
-    local ll = Instance.new("Part", d) ll.Name = "Left Leg" ll.Size = Vector3.new(1,2,1)
-    torso.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
-    head.Position = torso.Position + Vector3.new(0, 1.5, 0)
+    d:MoveTo(LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0))
+    local anim = Instance.new("Animation", d)
+    anim.AnimationId = "rbxassetid://180435571" -- Idle Anim
+    d.Humanoid:LoadAnimation(anim):Play()
 end)
 
 create_admin_cmd("Dar Admin", "Username", function(txt)
@@ -549,4 +582,4 @@ end)
 
 ClearButton.MouseButton1Click:Connect(function() ScriptBox.Text = "" end)
 
-print("Project 1xFe Pure Source Carregado!")
+print("Project 1xFe Final V7 Carregado!")
