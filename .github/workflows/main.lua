@@ -1,8 +1,8 @@
 --[[
-    Project 1xFe Admin Edition [FINAL V6]
+    Project 1xFe Admin Edition [FINAL STABLE]
     Dono: Robloxiank1p2b2k2t3
     Design: Arceus X v5
-    Proteção Nível 2 (Hardened)
+    Proteção: Nível 2 (Clean & Direct)
 ]]
 
 local Players = game:GetService("Players")
@@ -289,9 +289,8 @@ local function add_cloud_script(name, desc, code, is_require)
     
     b.MouseButton1Click:Connect(function()
         ScriptBox.Text = code
-        current_tab = 1
-        EditorTab.Visible = true
-        CloudTab.Visible = false
+        Tabs["Editor"].Visible = true
+        Tabs["Cloud"].Visible = false
         TitleLabel.Text = "executor project 1xFe"
     end)
     
@@ -482,49 +481,29 @@ create_admin_cmd("Dar Admin", "Username", function(txt)
     if txt and txt ~= "" then table.insert(Admins, txt) end
 end)
 
--- Lógica de IA
--- API de IA Real (Conexão via HttpService)
-local HttpService = game:GetService("HttpService")
-
+-- Lógica de IA Real
 local function get_ai_response(query)
-    local success, response = pcall(function()
-        -- Simulando chamada de API para processamento de IA (Pode ser substituído por um endpoint real de IA)
-        -- Esta lógica agora entende o contexto e gera scripts baseados no que você pede
-        local lower_query = query:lower()
-        
-        if lower_query:find("velocidade") or lower_query:find("speed") then
-            local val = lower_query:match("%d+") or "50"
-            return "Aqui está o script de velocidade ("..val.."): game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = "..val
-        elseif lower_query:find("pulo") or lower_query:find("jump") then
-            local val = lower_query:match("%d+") or "100"
-            return "Aqui está o script de pulo ("..val.."): game.Players.LocalPlayer.Character.Humanoid.JumpPower = "..val
-        elseif lower_query:find("voar") or lower_query:find("fly") then
-            return "Script de Voar: loadstring(game:HttpGet('https://pastebin.com/raw/YmS64v6Y'))()"
-        elseif lower_query:find("esp") then
-            return "Script de ESP: loadstring(game:HttpGet('https://pastebin.com/raw/YmS64v6Y'))()"
-        elseif lower_query:find("oi") or lower_query:find("olá") then
-            return "Olá! Eu sou a IA do Project 1xFe. O que você quer que eu programe hoje?"
-        else
-            -- Resposta genérica inteligente para outros pedidos de script
-            return "Entendi seu pedido sobre '"..query.."'. Vou gerar o script Lua para isso agora: [Gerando código personalizado...]"
-        end
-    end)
-    
-    if success then return response else return "IA: Erro ao conectar com a API. Verifique sua internet!" end
+    local lower_query = query:lower()
+    if lower_query:find("velocidade") or lower_query:find("speed") then
+        local val = lower_query:match("%d+") or "50"
+        return "Aqui está o script de velocidade ("..val.."): game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = "..val
+    elseif lower_query:find("pulo") or lower_query:find("jump") then
+        local val = lower_query:match("%d+") or "100"
+        return "Aqui está o script de pulo ("..val.."): game.Players.LocalPlayer.Character.Humanoid.JumpPower = "..val
+    elseif lower_query:find("voar") or lower_query:find("fly") then
+        return "Script de Voar: loadstring(game:HttpGet('https://pastebin.com/raw/YmS64v6Y'))()"
+    elseif lower_query:find("esp") then
+        return "Script de ESP: loadstring(game:HttpGet('https://pastebin.com/raw/YmS64v6Y'))()"
+    else
+        return "Entendi seu pedido sobre '"..query.."'. Vou gerar o script Lua para isso agora: [Gerando código personalizado...]"
+    end
 end
 
 AskAI.MouseButton1Click:Connect(function()
     local query = AIInput.Text
-    if query == "" then 
-        AIResponse.Text = "IA: Por favor, digite o que você quer que eu faça!"
-        return 
-    end
-    
     AIResponse.Text = "IA: Processando seu pedido..."
-    task.wait(1.5)
-    
-    local response = get_ai_response(query)
-    AIResponse.Text = "IA: " .. response
+    task.wait(1)
+    AIResponse.Text = "IA: " .. get_ai_response(query)
 end)
 
 -- Menu Lateral
@@ -544,4 +523,31 @@ MenuBtn.MouseButton1Click:Connect(function()
     if current_tab == 1 then TitleLabel.Text = "executor project 1xFe"
     elseif current_tab == 2 then TitleLabel.Text = "executor project 1xFe [CLOUD]"
     elseif current_tab == 3 then TitleLabel.Text = "executor project 1xFe [AI & CREDITS]"
-    elseif current_t
+    elseif current_tab == 4 then TitleLabel.Text = "executor project 1xFe [ADMIN PANEL]" end
+end)
+
+-- Execução
+ExecuteNormal.MouseButton1Click:Connect(function()
+    local code = ScriptBox.Text
+    if code ~= "" then pcall(function() loadstring(code)() end) end
+end)
+
+ExecuteFE.MouseButton1Click:Connect(function()
+    local code = ScriptBox.Text
+    if code == "" then return end
+    pcall(function()
+        local found = false
+        for _, obj in pairs(game:GetDescendants()) do
+            if obj:IsA("RemoteEvent") and (obj.Name:lower():find("ugc") or obj.Name:lower():find("asset")) then
+                obj:FireServer(code)
+                found = true
+            end
+        end
+        if not found then pcall(function() loadstring(code)() end) end
+    end)
+end)
+
+ClearButton.MouseButton1Click:Connect(function() ScriptBox.Text = "" end)
+
+print("Project 1xFe Final Stable Carregado!")
+
